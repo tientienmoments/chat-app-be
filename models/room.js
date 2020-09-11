@@ -16,8 +16,8 @@ const Schema = new mongoose.Schema({
     
 Schema.virtual("members", {
     ref: 'User',
-    localField: '_id',
-    foreignField: 'room',
+    localField: '_id',   //room id
+    foreignField: 'room',   //= User.room
     
 })
 

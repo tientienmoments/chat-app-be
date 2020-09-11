@@ -2,7 +2,7 @@ const Server = require("../models/server");
 const Chat = require("../models/chat");
 const Room = require("../models/room");
 const User = require("../models/user");
-const { login } = require("../models/server");
+
 
 module.exports = function (io) {
     io.on("connection", async function (socket) {
@@ -11,7 +11,7 @@ module.exports = function (io) {
             io.emit("receiveVote", option);
         });
         // fetch rooms
-        socket.emit("rooms", await Room.find())
+        socket.emit("rooms", await Room.find().populate("members"))
 
 
         // logins
@@ -30,7 +30,7 @@ module.exports = function (io) {
                 const room = await user.joinRoom(roomID);
 
                 // subscribe user to the room
-                socket.join(roomID);
+                socket.join(room._id);
                 // send notification message;
 
                 console.log("Hello ", user.user);
@@ -42,7 +42,7 @@ module.exports = function (io) {
                     },
                     chat: `Wellcome ${user.user.name} to room ${user.user.room.room}`,
                 };
-                io.to(user.user.room._id).emit('messages', welcomeMessage)
+                socket.to(room._id).broadcast.emit('messages', welcomeMessage)
 
                 // send notification message;
                 // io.to(room._id).emit('messages', { user: "system", message: `Welcome ${user.user.name} to room ${room.room}` })
@@ -50,6 +50,11 @@ module.exports = function (io) {
                 const chatHistory = await Chat.find({ room: room._id }).populate("user").sort("-createdAt").limit(20)
 
                 chatHistory.unshift(welcomeMessage);
+
+                //rooms
+                const rooms = await Room.find().populate("members")
+                console.log("check rooms", rooms)
+                io.emit("rooms", rooms)
                 // return room info to client 
                 return res({ status: "ok", data: { room: room, history: chatHistory } })
             } catch (err) {
@@ -108,7 +113,8 @@ module.exports = function (io) {
             console.log("check user", user)
             // join room (DB)
 
-``
+
+
             // send notification message;
             socket.to(user.user.room._id).broadcast.emit('messages', {
                 user:
@@ -117,6 +123,17 @@ module.exports = function (io) {
                 },
                 chat: `${user.user.name} has been left ${user.user.room.room}`
             })
+
+
+
+            socket.leave(user.user.room);
+
+            user.user.room = null;
+            await user.user.save();
+            const rooms = await Room.find().populate("members")
+
+
+            io.emit("rooms", rooms)
         })
     });
 }

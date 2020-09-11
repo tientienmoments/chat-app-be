@@ -14,7 +14,13 @@ const Schema = new mongoose.Schema({
         ref: "Room"
         
     }
-})
+},{
+    timestamps: true,
+    toJSON: {virtuals: true},
+    toObject: {virtuals: true},
+}
+
+)
 
 
 
