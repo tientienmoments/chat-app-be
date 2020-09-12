@@ -23,7 +23,8 @@ class Server {
     async chat(message){
         // insert a doc to Chat model;
         let chat = await Chat.create({
-            chat: message,
+            chat: message.chat,
+            type: message.type,
             user: this.user._id,
             room: this.user.room._id
         });

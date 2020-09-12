@@ -5,6 +5,7 @@ const Room = require("../models/room")
 router.get('/rooms', async function(req, res, next) {
   let rooms = [{room: "HCMC"}, {room: "Vietnam"}, {room: "Aboard"}]
   let result = await Room.insertMany(rooms)
+  
   res.send(result)
   
 });
