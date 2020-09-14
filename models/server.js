@@ -11,8 +11,8 @@ class Server {
 
 
     async joinRoom(roomID) {
-        const room = await Room.findOne({_id: roomID});
-        if(!room){
+        const room = await Room.findOne({ _id: roomID });
+        if (!room) {
             throw new Error("Wrong room ID")
         }
         this.user.room = room;
@@ -20,7 +20,8 @@ class Server {
         return room
     }
 
-    async chat(message){
+    async chat(message) {
+        console.log(message);
         // insert a doc to Chat model;
         let chat = await Chat.create({
             chat: message.chat,
@@ -40,7 +41,7 @@ class Server {
 
 
 
-    static async checkUser (sid)  {
+    static async checkUser(sid) {
         let user = await User.findOne({ token: sid }).populate("room");
         if (!user) throw new Error("User not found")
         return new Server(user);

@@ -70,6 +70,7 @@ module.exports = function (io) {
         // chat
         socket.on("sendMessage", async function (message) {
             const user = await Server.checkUser(socket.id);
+            console.log("in message ", message);
             const chat = await user.chat(message)
             io.to(user.user.room._id).emit("messages", chat)
         })
